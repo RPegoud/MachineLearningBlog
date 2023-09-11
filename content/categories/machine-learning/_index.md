@@ -1,5 +1,5 @@
 ---
-title: Example Category
+title: Machine Learning
 description: A description of this category
 image:
 
