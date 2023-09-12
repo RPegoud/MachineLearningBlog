@@ -1,8 +1,8 @@
 # Change baseurl before deploy
-baseurl = "https://demo.stack.jimmycai.com"
+baseurl = "https://mlblog.stack.rpegoud.com"
 languageCode = "en-us"
 paginate = 5
-title = "Hugo Theme Stack Starter"
+title = "Ryan's ML Gym"
 
 # Theme i18n support
 # Available values: en, fr, id, ja, ko, pt-br, zh-cn, zh-tw, es, de, nl, it, th, el, uk, ar
