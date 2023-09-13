@@ -1,5 +1,5 @@
 # Change baseurl before deploy
-baseurl = "https://rpegoud.github.io/MachineLearningBlog/"
+baseurl = "https://machine-learning-blog.vercel.app"
 languageCode = "en-us"
 paginate = 5
 title = "Ryan's ML Gym"
