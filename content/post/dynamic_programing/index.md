@@ -48,7 +48,7 @@ In practice, we prefer iterative approches. Consider a sequence of approximation
 We can compute the optimal policy by ***repeatedly applying the Bellman equation as an update rule***:
 
 * $v_0$  is chosen arbitrarily, $v$(terminal) = 0
-* $v_{k+1} = \mathop{\mathbb{E}}[R_{t+1} + \gamma v_k(S_{t+1}) | S_t=s]$
+* $v_{k+1} = \mathop{\mathbb{E} }[R_{t+1} + \gamma v_k(S_{t+1}) | S_t=s]$
  $\qquad = \sum_a \pi(a|s) \sum_{s',r}p[s',r|s,a](r + \gamma v_k(s'))$
 
 The sequence {$v_k$} is shown to converge to $v_k$ = $v_\pi$ as $k \rightarrow \infty$.

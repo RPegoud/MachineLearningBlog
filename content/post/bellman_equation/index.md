@@ -20,7 +20,7 @@ To maximize the return, we need our agent to pick the best possible actions from
 The answer is pretty straightforward, the agent follows a ***policy*** $\pi$, which is a **probability distribution over all actions in a given state**. Simply put, the policy is a **function that assigns a probability to each available action at a specific point in time**. The probability of picking an action $a$ in state $s$ is given by:
 $$\pi(a|s)$$
 As $\pi$ is a probability distribution, the sum of all action probabilities is 1:
-$$\sum_{a \in \mathcal{A(s)}}\pi(a|s) = 1$$
+$$\sum_{a \in \mathcal{A(s)} }\pi(a|s) = 1$$
 Finding the best policy is equivalent to maximizing the expected return, therefore, we need a way to determine how good it is to follow a specific policy.
 
 ## ***Value functions:***

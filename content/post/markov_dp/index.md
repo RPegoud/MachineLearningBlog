@@ -50,7 +50,9 @@ The return $G_t$ is the **sum of future rewards** at timestep $t$.
 $$G_t = R_{t+1}+R_{t+2}+R_{t+3}+...=\sum_{k=0}^\infty R_{t+k+1}$$
 It is important to understand that the return is a **random variable**, as the dynamics of the MDP can be **stochastic** (involve randomness). In other words, the same actions can lead to different rewards if the environment dynamics are random.
 Therefore we want to consider and maximize the **expected return**, aka the expected sum of future rewards:
+
 $$\mathbb{E}[G_t] = \mathbb{E}[\sum_{k=0}^\infty R_{t+k+1}]$$
+
 For this definition to make sense, the sum of rewards has to be **finite**. What happens if we want the agent to perform a task continuously, i.e. if the number of timesteps is infinite ?
 We must distinguish two cases:
 
@@ -67,9 +69,9 @@ $$G_t = \sum_{k=0}^\infty \gamma^k R_{t+k+1} \leq \sum_{k=0}^\infty \gamma^k R_{
 As $R_{max}$ is constant, we can write:
 $$\sum_{k=0}^\infty \gamma^k R_{max} = R_{max} \sum_{k=0}^\infty \gamma^k$$
 As $\sum_{k=0}^\infty \gamma^k$ is a geometric series converging for $\gamma \lt 1$ we can conclude that:
-$$R_{max} \sum_{k=0}^\infty \gamma^k = R_{max} \times {{1}\over{1-\gamma}} $$
+$$R_{max} \sum_{k=0}^\infty \gamma^k = R_{max} \times { {1}\over{1-\gamma} } $$
 In conclusion, $G_t$ has a finite upper bound and is therefore finite:
-$$G_t = \sum_{k=0}^\infty \gamma^k R_{t+k+1} \leq R_{max} \times {{1}\over{1-\gamma}}$$
+$$G_t = \sum_{k=0}^\infty \gamma^k R_{t+k+1} \leq R_{max} \times { {1}\over{1-\gamma} }$$
 
 ## ***Wrapping up***
 
