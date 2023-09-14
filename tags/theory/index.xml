@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Theory on Ryan's ML Gym</title><link>https://machine-learning-blog.vercel.app/tags/theory/</link><description>Recent content in Theory on Ryan's ML Gym</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 01 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://machine-learning-blog.vercel.app/tags/theory/index.xml" rel="self" type="application/rss+xml"/><item><title>Markov Decision Processes</title><link>https://machine-learning-blog.vercel.app/p/markov_decision_processes/</link><pubDate>Mon, 03 Apr 2023 00:00:00 +0000</pubDate><guid>https://machine-learning-blog.vercel.app/p/markov_decision_processes/</guid><description>&lt;img src="https://machine-learning-blog.vercel.app/p/markov_decision_processes/cover.jpg" alt="Featured image of post Markov Decision Processes" />&lt;p>&lt;code>Markov Decision Processes are meant to be a straightforward framing of the problem of learning from interaction to achieve a goal.&lt;/code>&lt;/p>
+&lt;p>You might have already wondered how Reinforcement Learning (RL) agents manage to reach super-human levels in games such as chess.
+Just like in chess, where a player has to &lt;em>&lt;strong>make decisions based on the current state of the board&lt;/strong>&lt;/em> and the available moves, RL agents also face similar decision-making challenges in dynamic environments.&lt;/p>
+&lt;p>Markov Decision Processes (MDP) &lt;strong>provide a mathematical framework&lt;/strong> to &lt;strong>model such sequential decision-making problems&lt;/strong>, making them a fundamental tool in Reinforcement Learning.&lt;/p>
+&lt;h2 id="markov-state">&lt;em>&lt;strong>Markov State&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>To understand an RL problem, we need to define its key components. The main character in this scenario, responsible for learning and making decisions, is referred to as the &lt;strong>agent&lt;/strong>. On the other side of the equation, we have the &lt;strong>environment&lt;/strong>, which encompasses everything the agent interacts with.&lt;/p>
+&lt;p>These two, the agent and the environment, engage in an ongoing interaction. The agent takes actions, and the environment responds to these actions, presenting new situations to the agent. After each action of the agent, the environment returns a &lt;strong>state&lt;/strong>, a snapshot of the environment at a given time, providing essential information for decision-making.&lt;/p>
+&lt;p>The totality of the state is &lt;strong>not always revealed to the agent&lt;/strong>. In games like poker for example, the state could be represented as the cards held by all the players, the cards on the table and the order of cards in the deck. However, &lt;strong>each player only has partial knowledge of the state&lt;/strong>. While their action modify the state of the environment, they only get an &lt;strong>observation&lt;/strong> back from the environment. We call
+these settings &lt;strong>partially observable&lt;/strong>.&lt;/p>
+&lt;p>Inversely, in chess, each player can observe the state of the board fully.&lt;/p>
+&lt;p>Finally, the environment offers &lt;strong>rewards&lt;/strong>, which are specific numerical values that the agent aims to maximize over time by making thoughtful choices in its actions.&lt;/p>
+&lt;center>&lt;img src="RL Loop.png">&lt;/center>
+&lt;p>In a &lt;em>finite&lt;/em> MDP, the sets of states, actions and rewards $(\mathcal{S, A} \text{ and } \mathcal{R})$ have a finite number of elements.
+In this case, the random variables $R_t$ and $S_t$ have discrete probability distributions dependent only on the preceding state and action.
+We then note the probability of transitioning to a new state $s&amp;rsquo;$ while receiving a reward $r$ based on the current state $s$ and the action $a$ taken by the agent:&lt;/p>
+&lt;p>$$p(s&amp;rsquo;,r|s,a) = Pr(S_t=s&amp;rsquo;, R_t=r | S_{t-1}=s, A_{t-1}=a)$$&lt;/p>
+&lt;p>For every value of these random variables, $s&amp;rsquo; \in \mathcal S$ and $r \in \mathcal R$, there is a probability of those values occuring at time $t$, given particular values of the preceding state and action. The function $p$ defines the &lt;strong>dynamics&lt;/strong> of the MDP. The dynamics function $p : \mathcal S ~X~ \mathcal R ~X~ \mathcal S ~X~ \mathcal A → [0,1]$ is a &lt;strong>probability distribution&lt;/strong> (as indicated by the &amp;lsquo;$|$&amp;rsquo;), therefore the sum of probabilites of all states $s&amp;rsquo;$ and rewards $r$ given a state $s$ and an action $a$ equals 1. $$\sum_{s&amp;rsquo; \in \mathcal S}\sum_{r \in \mathcal R}p(s&amp;rsquo;,r|s,a)=1$$ In an MDP, the probability given by $p$ &lt;strong>completely&lt;/strong> characterizes the environment dynamics.&lt;/p>
+&lt;p>Indeed, an environment having the &lt;strong>Markov property&lt;/strong> means that the probability of each possible value for $\mathcal S_t$ and $\mathcal R_t$ depends &lt;strong>only on the immediately preceding state and action&lt;/strong>, $\mathcal S_{t-1}$ and $\mathcal A_{t-1}$, and not at all on earlier states and actions.&lt;/p>
+&lt;p>This is best viewed as a restriction not on the decision process, but on the state. The &lt;strong>state must include information about all aspects of the past agent–environment interactions&lt;/strong> that make a difference for the future.
+This is a crucial assumption in Reinforcement Learning as it simplifies the learning problem by allowing the agent to ignore the history of past states and actions and focus solely on the current state.&lt;/p>
+&lt;p>A chess game is a good example of an MDP. We can define the environment&amp;rsquo;s state as the position of all the pieces on the board. In this setting, the &lt;strong>game history&lt;/strong> (sequence of moves played to get to the current position) &lt;strong>is not useful to predict the best possible move&lt;/strong>. Therefore the environment is said to be Markov.&lt;/p>
+&lt;center>&lt;img src="Markov State.png">&lt;/center>
+&lt;h2 id="reward-and-reward-hypothesis">&lt;em>&lt;strong>Reward and reward hypothesis:&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>At each timestep, the agent receives a &lt;em>&lt;strong>reward&lt;/strong>&lt;/em> $R_t \in \mathbb{R}$ defining its purpose. The goal of the agent is to maximize the total amount of rewards i.e. the cumulative reward. This idea is illustrated by the &lt;em>&lt;strong>reward hypothesis&lt;/strong>&lt;/em>:&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;em>&lt;strong>&amp;ldquo;All of what we mean by goals and purposes can be well thought of as the maximization of the expected value of the cumulative sum of a received scalar signal (called reward)&amp;rdquo;&lt;/strong>&lt;/em>&lt;/p>
+&lt;/blockquote>
+&lt;p>To complete the chess example, we could define the reward as being &lt;strong>positive&lt;/strong> when the agent &lt;strong>wins&lt;/strong> the game and &lt;strong>negative&lt;/strong> when it &lt;strong>loses&lt;/strong> or &lt;strong>draws&lt;/strong>. One could argue that capturing pieces should generate positive rewards, however it is possible to lose or draw the game after capturing almost all the opponent&amp;rsquo;s pieces.&lt;/p>
+&lt;p>It is important to understand that rewards are used to &lt;strong>set the goal to achieve and not the way to achieve it&lt;/strong> which is for the agent to figure out.&lt;/p>
+&lt;h2 id="return-and-episodes">&lt;em>&lt;strong>Return and episodes&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>Now that we have defined the notion of reward, we are interested in maximizing this reward over time. For this we need to define a new variable, the &lt;strong>return&lt;/strong>.&lt;/p>
+&lt;p>The return $G_t$ is the &lt;strong>sum of future rewards&lt;/strong> at timestep $t$.
+$$G_t = R_{t+1}+R_{t+2}+R_{t+3}+&amp;hellip;=\sum_{k=0}^\infty R_{t+k+1}$$
+Importantly, the return is a &lt;strong>random variable&lt;/strong>, as the dynamics of the MDP can be &lt;strong>stochastic&lt;/strong> (i.e. involve randomness). In other words, the same actions can lead to different rewards if the environment dynamics are random.
+Therefore we want to consider and maximize the &lt;strong>expected return&lt;/strong>, the expected sum of future rewards:&lt;/p>
+&lt;p>$$\mathbb{E}[G_t] = \mathbb{E}[\sum_{k=0}^\infty R_{t+k+1}]$$&lt;/p>
+&lt;p>For this definition to make sense, the sum of rewards has to be &lt;strong>finite&lt;/strong>. What happens if we want the agent to perform a task continuously, i.e. if the number of timesteps is infinite ?&lt;/p>
+&lt;p>We must distinguish two cases:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Episodic MDPs&lt;/strong>: the MDP can be naturally decomposed in &lt;strong>episodes&lt;/strong>, a finite sequence of actions that end on a &lt;strong>terminal state&lt;/strong>. Each episode starts in the &lt;strong>same configuration&lt;/strong> and is &lt;strong>independent from previous episodes&lt;/strong>.
+&lt;ul>
+&lt;li>A game of chess is again a good example, &lt;strong>each game starts in the same setting regardless of previous games&lt;/strong>. A game ends by a draw or by checkmate (terminal states). When the game ends we can reset the board and start anew.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>Continuous MDPs&lt;/strong>: here the number of timesteps in &lt;strong>infinite&lt;/strong>, the MDP goes on continually
+&lt;ul>
+&lt;li>An example of continuous MDP could be controlling a dam to optimize the energy production depending on the predicted demand. The dam being permanently active, there is no terminal state (if we leave out special events such as maintenance).&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="continuing-tasks-and-discounting-rewards">&lt;em>&lt;strong>Continuing tasks and discounting rewards&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>One might wonder, how can the expected return be finite when the MDP goes on forever ?&lt;/p>
+&lt;p>For continuous MDPs, the return is defined as the &lt;strong>discounted&lt;/strong> sum of future rewards. The discount factor $\gamma \in [0,1)$ makes sure that &lt;em>&lt;strong>rewards far in the future receive a lower weight&lt;/strong>&lt;/em>:
+$$G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + &amp;hellip; = \sum_{k=0}^\infty \gamma^k R_{t+k+1}$$&lt;/p>
+&lt;p>This acknowledges that rewards obtained in the future are generally considered less valuable than immediate rewards. This concept is crucial when dealing with tasks that have uncertain, long-term consequences.&lt;/p>
+&lt;p>A high discount factor values immediate rewards more, while a low factor assigns similar importance to rewards regardless of when they are received.&lt;/p>
+&lt;center>&lt;img src="Discounted Reward.png">&lt;/center>
+&lt;p>We can prove that the discounted return is finite by defining $R_{max}$ as the highest reward the agent can receive, therefore:
+$$G_t = \sum_{k=0}^\infty \gamma^k R_{t+k+1} \leq \sum_{k=0}^\infty \gamma^k R_{max}$$
+As $R_{max}$ is constant, we can write:
+$$\sum_{k=0}^\infty \gamma^k R_{max} = R_{max} \sum_{k=0}^\infty \gamma^k$$
+As $\sum_{k=0}^\infty \gamma^k$ is a geometric series converging for $\gamma \lt 1$ we can conclude that:
+$$R_{max} \sum_{k=0}^\infty \gamma^k = R_{max} \times { {1}\over{1-\gamma} } $$
+In conclusion, $G_t$ has a finite upper bound and is therefore finite:
+$$G_t = \sum_{k=0}^\infty \gamma^k R_{t+k+1} \leq R_{max} \times { {1}\over{1-\gamma} }$$&lt;/p>
+&lt;h2 id="wrapping-up">&lt;em>&lt;strong>Wrapping up&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>There we have it ! In this article, we learned about &lt;em>&lt;strong>MDPs&lt;/strong>&lt;/em>, &lt;em>&lt;strong>rewards&lt;/strong>&lt;/em> and how to define the &lt;em>&lt;strong>return for episodic and continuing tasks&lt;/strong>&lt;/em>. In the next article, we&amp;rsquo;ll see how we can &lt;em>&lt;strong>solve&lt;/strong>&lt;/em> an MDP to find the best possible action in each state by introducing the notions of &lt;em>&lt;strong>policy&lt;/strong>&lt;/em>, &lt;em>&lt;strong>value functions&lt;/strong>&lt;/em> and last but not least, the &lt;a href="../bellman_equation/">Bellman Equation&lt;a/>&lt;/p></description></item><item><title>The Bellman equation</title><link>https://machine-learning-blog.vercel.app/p/bellman_equation/</link><pubDate>Sat, 29 Apr 2023 00:00:00 +0000</pubDate><guid>https://machine-learning-blog.vercel.app/p/bellman_equation/</guid><description>&lt;img src="https://machine-learning-blog.vercel.app/p/bellman_equation/cover.jpg" alt="Featured image of post The Bellman equation" />&lt;p>In the previous articles, we had a look at the general setting of an RL problem by understanding the importance of the Markov property, the notion of rewards and return. Now that the agent evolves in a well defined environment and can receive rewards, we want to find a way to solve the MDP, in other words to maximize the expected return.&lt;/p>
+&lt;h2 id="policy">&lt;em>&lt;strong>Policy:&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>To maximize the return, we need our agent to pick the best possible actions from every state. You might wonder, how does the agent select actions ?
+The answer is pretty straightforward, the agent follows a &lt;em>&lt;strong>policy&lt;/strong>&lt;/em> $\pi$, which is a &lt;strong>probability distribution over all actions in a given state&lt;/strong>. Simply put, the policy is a &lt;strong>function that assigns a probability to each available action at a specific point in time&lt;/strong>. The probability of picking an action $a$ in state $s$ is given by:
+$$\pi(a|s)$$
+As $\pi$ is a probability distribution, the sum of all action probabilities is 1:
+$$\sum_{a \in \mathcal{A(s)} }\pi(a|s) = 1$$
+Finding the best policy is equivalent to maximizing the expected return, therefore, we need a way to determine how good it is to follow a specific policy.&lt;/p>
+&lt;h2 id="value-functions">&lt;em>&lt;strong>Value functions:&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>Value functions allow us to get an idea of how valuable it is to pursue a specific policy in a certain state. Here, we&amp;rsquo;ll introduce the &lt;em>&lt;strong>state value function&lt;/strong>&lt;/em> and the &lt;em>&lt;strong>action value function&lt;/strong>&lt;/em>:&lt;/p>
+&lt;h3 id="state-value-function">&lt;em>&lt;strong>State value function:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>The state value function helps to answer the questions:&lt;/p>
+&lt;p>&lt;em>&lt;strong>How good is it to be in state $s$ and to follow the policy $\pi$ thereafter ?&lt;/strong>&lt;/em>&lt;/p>
+&lt;p>In an MDP, the state value function is defined as follows:
+$$v_\pi(s) = E_\pi[G_t|S_t=s]$$
+As you can see, the state value function is the expected return given that we are in state $s$ and follow the policy $\pi$. We can use the definition of the return to obtain the following form:
+$$v_\pi(s) = E_\pi[\sum_{k=0}^\infty \gamma^kR_{t+k+1}|S_t=s]$$&lt;/p>
+&lt;h3 id="ction-value-function">&lt;em>&lt;strong>ction value function:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>On the other hand, the action value function answers :&lt;/p>
+&lt;p>&lt;em>&lt;strong>How good is it to be in state $s$, pick action $a$ and follow the policy $\pi$ thereafter ?&lt;/strong>&lt;/em>&lt;/p>
+&lt;p>In an MDP, the action value function is defined as follows:
+$$q_\pi(s) = E_\pi[G_t|S_t=s, A_t = a]$$
+This equation is highly similar to the state value function, the only difference is that, before following $\pi$, we pick an action $a$.
+$$q_\pi(s) = E_\pi[\sum_{k=0}^\infty \gamma^kR_{t+k+1}|S_t=s, A_t=a]$$&lt;/p>
+&lt;h2 id="bellman-equations">&lt;em>&lt;strong>Bellman equations:&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>Now that we have briefly defined value functions, we will introduce the Bellman equations, that are directly derived from the state value and action value functions. These equations are used to link the value of each state, or state-action pair to the value of its possible successors.&lt;/p>
+&lt;h3 id="the-v-function">&lt;em>&lt;strong>The V function:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>To solve an MDP, we need to evaluate the values of states based on the actions and subsequent states available. The Bellman equation allows us to define the state value function using recursion, which will come in handy and allow us to iterate through the state space.
+Let&amp;rsquo;s start from the definition of the state value function:
+$$v_\pi(s) = E_\pi[G_t|S_t=s]$$
+Using the recursive definition of $G_t$, we obtain:
+$$v_\pi(s) = E_\pi[R_{t+1} + \gamma G_{t+1}|S_t=s]$$
+We&amp;rsquo;ll now decompose the expectation as three sums, one over each available actions $a$, over each subsequent state $s&amp;rsquo;$ and rewards $r$ (look at the following backup graph for a more visual explanation !):
+$$v_\pi(s) = \sum_a\pi(a|s)\sum_{s&amp;rsquo;,r}p[s&amp;rsquo;,r|s,a](r + \gamma E_{\pi}[G_{t+1}|S_{t+1}=s&amp;rsquo;)]$$
+Here you might recognize that $E_{\pi}[G_{t+1}|S_{t+1}=s&amp;rsquo;]$ is the value of the state s&amp;rsquo;, therefore:
+$$v_\pi(s) = \sum_a\pi(a|s)\sum_{s&amp;rsquo;,r}p[s&amp;rsquo;,r|s,a](r + \gamma v_\pi(s&amp;rsquo;))$$
+For all state $s \in \mathcal{S}$&lt;/p>
+&lt;p>&lt;em>Note that $\sum_{s&amp;rsquo;,r}$ is a compact notation for $\sum_{s&amp;rsquo;}\sum_r$&lt;/em>&lt;/p>
+&lt;p>&lt;em>&lt;strong>Visual explanation:&lt;/strong>&lt;/em>&lt;/p>
+&lt;p>This might seem complicated, but no worries, let&amp;rsquo;s look at a more visual explanation with this backup diagram. We start in a state $s$ and want to estimate the value of being in this state. From there we can pick different actions, each action has a probability of being picked depending on the policy $\pi$ (remember that the policy is a probability distribution). After picking an action, the environment will return a new state $s&amp;rsquo;$ and a reward $r$, both are subject to the environment&amp;rsquo;s dynamics $p$ which is also a probability distribution.
+The Bellman equation states that the value of being in state $s$ is the sum of the rewards and subsequent state values we can get from picking an action $a$ while being in state $s$ : $$[r + \gamma v_\pi(s&amp;rsquo;)]$$This sum is weighted by the probability of obtaining each action, reward and state triplet:
+$$ \sum_a\pi(a|s)\sum_{s&amp;rsquo;,r}p(s&amp;rsquo;,r|s,a)$$
+Putting it all together, we obtain the Bellman equation for the state value.&lt;/p>
+&lt;center>&lt;img src="state_value_function.jpg">&lt;/center>
+&lt;h3 id="the-q-function">&lt;em>&lt;strong>The Q function:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>In the same fashion, we can derive the Bellman version of the action-value function starting from the definition:
+$$q_\pi(s) = E_\pi[G_t|S_t=s, A_t=a]$$
+However this time, we start from a state $s$ &lt;em>&lt;strong>and&lt;/strong>&lt;/em> take an action $a$ (refer to the following backup diagram). As the action we chose is fixed, the policy is not yet intervening. Using the same recursive property og $G_t$, we obtain:
+$$q_\pi(s) = \sum_{s&amp;rsquo;,r} p[s&amp;rsquo;,r|s,a](r + \gamma E_\pi[G_{t+1}|S_{t+1}=s&amp;rsquo;)]$$
+We now have the expected return for states $s&amp;rsquo;$, however we are interested in the value of &lt;em>state-action pairs&lt;/em>. We can therefore use the following transformation and introduce the new action $a&amp;rsquo;$ and its probability defined by $\pi$: $$\gamma E_\pi[G_{t+1}|S_{t+1}=s&amp;rsquo;] = \gamma \sum_{a&amp;rsquo;} \pi(a&amp;rsquo;|s&amp;rsquo;)E_\pi[G_{t+1}|S_{t+1}=s&amp;rsquo;, A_{t+1}=a&amp;rsquo;]$$ We effectively transformed the state value of $s&amp;rsquo;$ into the action value of $s&amp;rsquo;$, following the definition of $q_{\pi}$, the whole expression becomes:
+$$q_\pi(s) = \sum_{s&amp;rsquo;,r} p[s&amp;rsquo;,r|s,a](r + \gamma \sum_{a&amp;rsquo;} \pi(a&amp;rsquo;,s&amp;rsquo;) q_\pi(a&amp;rsquo;,s&amp;rsquo;))$$&lt;/p>
+&lt;p>&lt;em>&lt;strong>Visual explanation:&lt;/strong>&lt;/em>&lt;/p>
+&lt;p>This time, we start from a state $s$ and pick an action $a$, from there we can transition to different states $s&amp;rsquo;$ and receive a reward $r$ depending on the environment&amp;rsquo;s dynamics. As we evaluate all the possible transitions, we get the term $\sum_{s&amp;rsquo;,r} p(s&amp;rsquo;,r|s,a)$.
+We then want to estimate the value of the new state $s&amp;rsquo;$ we landed in. This value corresponds to the transition reward $r$ summed with the (discounted) expected return from state $s&amp;rsquo;$.
+The expected return from state $s&amp;rsquo;$ can be seen as the weighted sum of the values of each state-action pairs, with the weight being the probability of picking action $a&amp;rsquo;$ from state $s&amp;rsquo;$. This is summarized by the term: $\gamma \sum_a \pi(a&amp;rsquo;,s&amp;rsquo;) q_\pi(a&amp;rsquo;,s&amp;rsquo;)$&lt;/p>
+&lt;p>Put together, we obtain the Bellman equation for the action value.&lt;/p>
+&lt;center>&lt;img src="action_value_function.jpg">&lt;/center>
+&lt;h2 id="optimal-policies-and-value-functions">&lt;em>&lt;strong>Optimal policies and value functions:&lt;/strong>&lt;/em>&lt;/h2>
+&lt;h3 id="comparing-policies">&lt;em>&lt;strong>Comparing policies:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>One of the main reasons for introducing value functions is to be able to compare policies, and therefore search for an optimal policy: a policy for which the value is maximal in each state.
+Consider two policies $\pi$ and $\pi&amp;rsquo;$:
+$$\pi \geq \pi&amp;rsquo; \implies v_\pi(s) \geq v_{\pi&amp;rsquo;}(s)\text{ } \forall s \in \mathcal{S}$$
+$\pi$ is superior or equal to $\pi&amp;rsquo;$ if and only if the value of any state $s$ under $\pi$ is superior or equal to the value of state $s$ under $\pi&amp;rsquo;$.
+A policy that is superior or equal to all other policies is called an &lt;em>&lt;strong>optimal policy&lt;/strong>&lt;/em> and is noted $\pi_{\star}$.
+In fact, there is always at least one optimal policy, therefore $\pi_{\star}$ refers to any optimal policy.&lt;/p>
+&lt;p>Why is that ? Imagine two policies $\pi_1$ and $\pi_2$, whith $\pi_1&amp;gt;\pi_2$ in a certain state A and $\pi_1&amp;lt;\pi_2$ in another state B. It is possible to create a policy $\pi_3$ as a combination of both previous policies so that $\pi_3$ always follows the policy with the highest value in the current state. Therefore, $\pi_3$ will necessarily have a value superior or equal to both policies in every state.
+There exists a formal proof to this problem, however this argument helps us understand that we will not &lt;em>&lt;strong>encounter situations where we have to sacrifice value in one state to achieve value in another&lt;/strong>&lt;/em>, and therefore there exist a policy that is best in every state.&lt;/p>
+&lt;h3 id="optimal-value-functions">&lt;em>&lt;strong>Optimal value functions:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>Using an optimal policy $\pi_{\star}$, we can define the optimal value functions $v_\star$ and $q_\star$.
+The state value function for an optimal policy has the greatest value in each state, it can be defined as follows:
+$$v_{\pi \star}(s) = E_{\pi \star}[G_t|S_t=s] = \max_{\pi} v_\pi(s) \text{ for all } s \in \mathcal S$$
+In other words $v_{\pi \star}(s)$ is the equal to the maximum value over all policies.&lt;/p>
+&lt;p>Optimal policies also share the same action value function, given by:
+$$q_{\pi\star}(s,a) = \max_\pi q_\pi(s,a) \text{ for all } s \in \mathcal S \text{ and } a \in \mathcal A$$&lt;/p>
+&lt;h3 id="bellman-optimality-equations">&lt;em>&lt;strong>Bellman optimality equations:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>The Bellman equations for optimal state and action value functions are called the Bellman optimality equations.
+Let&amp;rsquo;s recall the Bellman equation for the state value function and substitute the policy $\pi$ by an optimal policy $\pi_\star$:
+$$v_\star(s) = \sum_a\pi_\star(a|s)\sum_{s&amp;rsquo;,r}p[s&amp;rsquo;,r|s,a](r + \gamma v_{\star}(s&amp;rsquo;))$$
+Now, as $\pi_\star$ is an optimal policy, we can rewrite the equation in a form that doesn&amp;rsquo;t reference the policy. Indeed, the optimal policy select the best action in every state by assigning probability 1 to the action yielding maximal value and 0 to the others. This can be expressed by replacing $\pi_\star$ by the maximum over all actions:
+$$v_\star(s) = \max_a\sum_{s&amp;rsquo;,r}p[s&amp;rsquo;,r|s,a](r + \gamma v_\star(s&amp;rsquo;))$$&lt;/p>
+&lt;p>We can apply the same reasoning to $q_\star$:
+$$q_\star(s) = \sum_{s&amp;rsquo;,r} p[s&amp;rsquo;,r|s,a](r + \gamma \sum_{a&amp;rsquo;} \pi_\star(a&amp;rsquo;,s&amp;rsquo;) q_\star(a&amp;rsquo;,s&amp;rsquo;))$$
+$$q_\star(s) = \sum_{s&amp;rsquo;,r} p[s&amp;rsquo;,r|s,a](r + \gamma \max_{a&amp;rsquo;} q_\star(a&amp;rsquo;,s&amp;rsquo;))$$&lt;/p>
+&lt;h2 id="finding-an-optimal-policy-from-an-optimal-value-function">&lt;em>&lt;strong>Finding an optimal policy from an optimal value function:&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>To conclude this chapter, we&amp;rsquo;ll derive a formula for the optimal policy based on optimal value functions.&lt;/p>
+&lt;h3 id="from-v_star">&lt;em>&lt;strong>From $v_\star$:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>Having access to the dynamics function $p$ and the optimal state value function $v_\star$ makes it easy to determine $\pi_\star$. Indeed, for every state, we&amp;rsquo;ll compute the term $\sum_{s&amp;rsquo;,r}p[s&amp;rsquo;,r|s,a](r + \gamma v_\star(s&amp;rsquo;))$ for each action. This can be seen as a one-step lookahead, as depicted on the backup diagram.
+For some actions, this term will reach a maximum, a deterministic policy selecting these actions for each state will necessarily be optimal.
+Now let&amp;rsquo;s see how to derive $\pi_\star$ from $v_\star$:
+$$v_\star(s) = \max_a\sum_{s&amp;rsquo;,r}p[s&amp;rsquo;,r|s,a](r + \gamma v_\star(s&amp;rsquo;))$$
+Recall that $v_\star$ simply returns the maximal value for state $s$, the optimal policy picks the action associated with this maximum value. Therefore, we just have to replace the $\max$ operator by $argmax$:
+$$\pi_\star(s) = \text{arg}\max_a\sum_{s&amp;rsquo;,r}p[s&amp;rsquo;,r|s,a](r + \gamma v_\star(s&amp;rsquo;))$$&lt;/p>
+&lt;h3 id="from-q_star">&lt;em>&lt;strong>From $q_\star$:&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>If instead we have access to $q_\star$, deriving $\pi_\star$ is even easier. We only have to select the action $a$ that maximizes $q_\star(s,a)$.&lt;/p>
+&lt;p>$$\pi_\star(s) = \text{arg}\max_a \text{ }q_\star(s,a)$$&lt;/p>
+&lt;h2 id="wrapping-up">&lt;em>&lt;strong>Wrapping up:&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>In conclusion, the Bellman equation is a fundamental concept in the field of Reinforcement Learning, enabling us to &lt;em>&lt;strong>compute the optimal value function of an agent in a Markov Decision Process&lt;/strong>&lt;/em>. Through the use of the Bellman equation, we can efficiently solve complex decision-making problems by breaking them down into smaller sub-problems.&lt;/p>
+&lt;p>In the next article, we will dive deeper into the world of &lt;a href="../">Dynamic Programming&lt;a/> algorithms, a class of algorithms that utilizes the Bellman equation to solve problems in a systematic and efficient manner. We will explore various dynamic programming algorithms such as Value Iteration and Policy Iteration, and see how they can be used to solve larger and more complex decision-making problems.&lt;/p></description></item><item><title>KL divergence</title><link>https://machine-learning-blog.vercel.app/p/kl_divergence/</link><pubDate>Mon, 01 May 2023 00:00:00 +0000</pubDate><guid>https://machine-learning-blog.vercel.app/p/kl_divergence/</guid><description>&lt;img src="https://machine-learning-blog.vercel.app/p/kl_divergence/cover.jpg" alt="Featured image of post KL divergence" />&lt;p>&lt;em>&lt;strong>Credits: &lt;a class="link" href="https://www.youtube.com/watch?v=SxGYPqCgJWM" target="_blank" rel="noopener"
+>Intuitively Understanding the KL Divergence&lt;/a>, &lt;a class="link" href="https://en.wikipedia.org/wiki/Kullback%e2%80%93Leibler_divergence" target="_blank" rel="noopener"
+>Wikipedia&lt;/a>&lt;/strong>&lt;/em>&lt;/p>
+&lt;p>In recent years, reinforcement learning (RL) has emerged as a powerful paradigm for solving complex decision-making problems. One of the fundamental challenges in RL is to accurately estimate the value of different actions in a given state.
+KL divergence, &lt;em>&lt;strong>a measure of how one probability distribution differs from another&lt;/strong>&lt;/em>, has become an essential tool for addressing this challenge. KL divergence is widely used in machine learning, particularly in deep learning and probabilistic modeling, to compare the difference between two probability distributions.
+In the context of RL, &lt;em>&lt;strong>KL divergence plays a crucial role in many algorithms, such as policy optimization and value function approximation&lt;/strong>&lt;/em>. In this article, we will explore the importance of KL divergence in RL and machine learning in general and discuss its applications in solving a wide range of problems.&lt;/p>
+&lt;h2 id="definition">&lt;em>&lt;strong>Definition&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>The &lt;em>&lt;strong>Kullback-Leibler divergence&lt;/strong>&lt;/em> is a statistical distance measuring &lt;em>&lt;strong>how different a probability distribution is from a reference distribution.&lt;/strong>&lt;/em>
+We usually consider two distributions:&lt;/p>
+&lt;ul>
+&lt;li>$P$ which serves as reference, it represents the data or observations&lt;/li>
+&lt;li>$Q$ which represents a model or an approximation of $P$&lt;/li>
+&lt;/ul>
+&lt;p>The KL divergence is defined for both &lt;em>&lt;strong>continuous&lt;/strong>&lt;/em> and &lt;em>&lt;strong>discrete probability distributions&lt;/strong>&lt;/em>.&lt;/p>
+&lt;h3 id="discrete-case">&lt;em>&lt;strong>Discrete case&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>For $P$ and $Q$ defined on the same sample space $\mathcal{X}$, the KL divergence from $Q$ to $P$ is defined as:
+$$D_{KL}(P||Q) = \sum_{x \in \mathcal{X} }P(x)log({P(x)\over{Q(x)} })$$
+One way to interpret this formula is to consider it as the &lt;em>&lt;strong>expectation of the logarithmic difference between the probabilities $P$ and $Q$&lt;/strong>&lt;/em>, where the expectation is taken using $P$ as reference.&lt;/p>
+&lt;h3 id="continuous-case">&lt;em>&lt;strong>Continuous case&lt;/strong>&lt;/em>&lt;/h3>
+&lt;p>For distributions $P$ and $Q$ of a continuous random variable, the KL divergence from $Q$ to $P$ is defined as the integral:
+$$D_{KL}(P||Q) = \int_{-\infty}^{\infty}P(x)log({P(x)\over{Q(x)} })dx$$&lt;/p>
+&lt;h2 id="intuitive-explanation">&lt;em>&lt;strong>Intuitive explanation&lt;/strong>&lt;/em>&lt;/h2>
+&lt;p>As mentioned previously, the KL divergence is intended to measure the difference between probability distributions. In other words it measures how likely it is for the distribution $Q$ to generate samples from distribution $P$.&lt;/p>
+&lt;p>Let&amp;rsquo;s take the simplest example of a Binomial distribution, the coin toss:
+Consider two coins, the first one is a fair coin, therefore $P(heads) = P(tails) = 0.5$&lt;/p>
+&lt;p>However the second coin is biased, $P(heads)=p$ and $P(tails)=1-p$&lt;/p>
+&lt;p>How can we measure the distance between these two distributions ? Certainly if $p$ is close to 0.55, the distributions would be much more similar than if $p=0.95$.
+Indeed if $p=0.55$, then it would be easy to &lt;em>&lt;strong>confuse&lt;/strong>&lt;/em> the two distributions. We could measure this by &lt;em>&lt;strong>comparing the probability of a specific sequence under both distributions&lt;/strong>&lt;/em>.&lt;/p>
+&lt;p>Let&amp;rsquo;s say we toss the first coin 10 times and obtain the following sequence:
+$$H,T,T,H,T,H,H,H,T,H$$
+Comparing the likelihood of this sequence happening for the fair coin and the biased coin could boil down to computing:
+$${P(sequence | \text{fair coin})\over P(sequence | \text{biased coin})}$$
+To compute the likelihood of this sequence happening for both coins, lets define:&lt;/p>
+&lt;ul>
+&lt;li>$p_1 = P(head|\text{fair coin})$ and $p_2 = P(tails|\text{fair coin})$&lt;/li>
+&lt;li>$q_1 = P(head|\text{biased coin})$ and $q_2 = P(tails|\text{biased coin})$&lt;/li>
+&lt;/ul>
+&lt;p>Intuitively, the probability of observing the previous sequence would be:
+$$P(sequence|\text{fair coin}) = p_1\times p_2\times p_2\times p_1\times p_2\times p_1\times p_1\times p_1\times p_2\times p_1$$
+A more elegant way to write this expression is obtained by raising both probabilities to the power $N_H$ and $N_T$ where $N_H$ is the number of heads and $N_T$ the number of tails.
+$$P(sequence|\text{fair coin}) = p_1^{N_H} \text{ } p_2^{N_T}$$
+$$P(sequence|\text{biased coin}) = q_1^{N_H} \text{ } q_2^{N_T}$$&lt;/p>
+&lt;p>Therefore, the ratio defined previously becomes:
+$${P(sequence | \text{fair coin})\over P(sequence | \text{biased coin}) } = {p_1^{N_H} \text{ } p_2^{N_T}\over q_1^{N_H} \text{ } q_2^{N_T} }$$
+Believe it or not, the KL divergence is just around the corner ! Let&amp;rsquo;s normalize for sample size by raising the ratio to the power of $1/N$ and then take the log of the expression, we obtain:
+$$log({p_1^{N_H} \text{ } p_2^{N_T}\over q_1^{N_H} \text{ } q_2^{N_T} })^{1\over N}$$
+Using the log properties, we obtain the following equivalences:
+$${1\over N}log({p_1^{N_H} \text{ } p_2^{N_T}\over q_1^{N_H} \text{ } q_2^{N_T} })$$ By breaking down multiplications and divisions:
+$${1\over N}log\text{ }p_1^{N_H} + {1\over N}log\text{ }p_2^{N_T} - {1\over N}log\text{ }q_1^{N_H} - {1\over N}log\text{ }q_2^{N_T}$$
+We can once again drop down the powers:
+$${N_H\over N}log\text{ }p_1+ { {N_T}\over N}log\text{ }p_2 - { {N_H}\over N}log\text{ }q_1 - { {N_T}\over N}log\text{ }q_2$$&lt;/p>
+&lt;p>Now, if the observations are generated by the fair coin (which we use as reference), then, as $N$ tends to infinity, the proportion of observed heads becomes $p_1$ and the proportion of observed tails becomes $p_2$.&lt;/p>
+&lt;p>Therefore, in the limit we can say that ${N_H\over N} = p_1$ and ${N_T\over N} = p_2$&lt;/p>
+&lt;p>From there, we can simplify the equation and finally get to the discrete definition of the KL divergence:
+$$p_1\text{ }log\text{ }p_1+ p_2\text{ }log\text{ }p_2 - p_1\text{ }log\text{ }q_1 - p_2\text{ }log\text{ }q_2$$
+$$= p_1\text{ }log\text{ }{p_1\over q_1} + p_2\text{ }log{p_2 \over q_2}$$
+$$= \sum p(x)log\text{ }{p(x)\over q(x)}$$
+Please note that this proof also holds for more than two classes.&lt;/p>
+&lt;h2 id="to-remember">&lt;em>&lt;strong>To remember&lt;/strong>&lt;/em>&lt;/h2>
+&lt;ul>
+&lt;li>While the KL divergence is a distance it is &lt;em>&lt;strong>not a metric&lt;/strong>&lt;/em> for the following reasons:
+&lt;ul>
+&lt;li>It is not symmetric&lt;/li>
+&lt;li>It doesn&amp;rsquo;t satisfy the triangle inequality&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Indeed the KL divergence is &lt;em>&lt;strong>not symmetric&lt;/strong>&lt;/em>, meaning that the KL divergence between two probability distributions P and Q is not necessarily equal to the KL divergence between Q and P. This is because the KL divergence measures the difference between two probability distributions in terms of &lt;em>&lt;strong>how much information is lost when using Q to approximate P&lt;/strong>&lt;/em>, and &lt;em>&lt;strong>the amount of information lost depends on which distribution is used as the reference&lt;/strong>&lt;/em>.&lt;/p>
+&lt;p>In other words, the KL divergence measures the extent to which one probability distribution differs from another, and this difference may be asymmetric depending on the specific context and the reference distribution used. For example, in some cases, one distribution may be a much better approximation of another than vice versa, resulting in different KL divergences when comparing the two distributions.&lt;/p>
+&lt;ul>
+&lt;li>The KL Loss is &lt;em>&lt;strong>equivalent to the Cross-Entropy Loss&lt;/strong>&lt;/em> since both aim to minize distances between distributions&lt;/li>
+&lt;/ul></description></item></channel></rss>

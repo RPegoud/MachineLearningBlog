@@ -1,0 +1,174 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Let's code a Multi-Layer Perceptron from scratch with JAX !"><title>Building a Neural Network with JAX: An Illustrated Guide</title><link rel=canonical href=https://machine-learning-blog.vercel.app/p/jax_mlp/><link rel=stylesheet href=/scss/style.min.abbd69b2908fdfcd5179898beaafd374514a86538d81639ddd2c58c06ae54e40.css><meta property="og:title" content="Building a Neural Network with JAX: An Illustrated Guide"><meta property="og:description" content="Let's code a Multi-Layer Perceptron from scratch with JAX !"><meta property="og:url" content="https://machine-learning-blog.vercel.app/p/jax_mlp/"><meta property="og:site_name" content="Ryan's ML Gym"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="Implementation"><meta property="article:published_time" content="2023-09-12T00:00:00+00:00"><meta property="article:modified_time" content="2023-09-12T00:00:00+00:00"><meta property="og:image" content="https://machine-learning-blog.vercel.app/p/jax_mlp/cover.jpg"><meta name=twitter:title content="Building a Neural Network with JAX: An Illustrated Guide"><meta name=twitter:description content="Let's code a Multi-Layer Perceptron from scratch with JAX !"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://machine-learning-blog.vercel.app/p/jax_mlp/cover.jpg"><link rel="shortcut icon" href=/favicon.png></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hua2fcca72f1e2583e003df056155e3d9b_18418_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🤖</span></figure><div class=site-meta><h1 class=site-name><a href=/>Ryan's ML Gym</a></h1><h2 class=site-description>“No problem can withstand the assault of sustained thinking.” — Voltaire</h2></div></header><ol class=social-menu><li><a href=https://github.com/RPegoud target=_blank title=GitHub rel=me><svg class="feather feather-github" fill="none" height="24" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg></a></li><li><a href=https://www.linkedin.com/in/ryan-p%c3%a9goud/ target=_blank title=Linkedin rel=me><svg class="feather feather-linkedin" fill="none" height="24" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect height="12" width="4" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>Home</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>Dark Mode</span></li></div></ol></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/jax_mlp/><img src=/p/jax_mlp/cover_hu3d03a01dcc18bc5be0e67db3d8d209a6_1256981_800x0_resize_q75_box.jpg srcset="/p/jax_mlp/cover_hu3d03a01dcc18bc5be0e67db3d8d209a6_1256981_800x0_resize_q75_box.jpg 800w, /p/jax_mlp/cover_hu3d03a01dcc18bc5be0e67db3d8d209a6_1256981_1600x0_resize_q75_box.jpg 1600w" width=800 height=450 loading=lazy alt="Featured image of post Building a Neural Network with JAX: An Illustrated Guide"></a></div><div class=article-details><header class=article-category><a href=/categories/jax/>JAX</a>
+<a href=/categories/machine-learning/ style=background-color:#2a9d8f;color:#fff>Machine Learning</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/jax_mlp/>Building a Neural Network with JAX: An Illustrated Guide</a></h2><h3 class=article-subtitle>Let's code a Multi-Layer Perceptron from scratch with JAX !</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Sep 12, 2023</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>2 minute read</time></div></footer></div></header><section class=article-content><p><em>Coming soon !</em></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>jax.numpy</span> <span class=k>as</span> <span class=nn>jnp</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>jax</span> <span class=kn>import</span> <span class=n>random</span><span class=p>,</span> <span class=n>tree_map</span><span class=p>,</span> <span class=n>vmap</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>jax.scipy.special</span> <span class=kn>import</span> <span class=n>logsumexp</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>LAYER_SIZES</span> <span class=o>=</span> <span class=p>[</span><span class=mi>784</span><span class=p>,</span> <span class=mi>512</span><span class=p>,</span> <span class=mi>512</span><span class=p>,</span> <span class=mi>10</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>LEARNING_RATE</span> <span class=o>=</span> <span class=mf>1e-2</span>
+</span></span><span class=line><span class=cl><span class=n>N_EPOCHS</span> <span class=o>=</span> <span class=mi>8</span>
+</span></span><span class=line><span class=cl><span class=n>BATCH_SIZE</span> <span class=o>=</span> <span class=mi>128</span>
+</span></span><span class=line><span class=cl><span class=n>N_CLASSES</span> <span class=o>=</span> <span class=mi>10</span>
+</span></span><span class=line><span class=cl><span class=n>RANDOM_SEED</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>init_weights_biases</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>in_size</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>out_size</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>random_key</span><span class=p>:</span> <span class=n>random</span><span class=o>.</span><span class=n>PRNGKey</span><span class=p>,</span> <span class=n>scale</span><span class=p>:</span> <span class=nb>float</span> <span class=o>=</span> <span class=mf>1e-3</span>
+</span></span><span class=line><span class=cl><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>tuple</span><span class=p>[</span><span class=n>jnp</span><span class=o>.</span><span class=n>array</span><span class=p>,</span> <span class=n>jnp</span><span class=o>.</span><span class=n>array</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Initialize weights and biases for a neural network layer.
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        in_size (int): Number of input features.
+</span></span></span><span class=line><span class=cl><span class=s2>        out_size (int): Number of output neurons.
+</span></span></span><span class=line><span class=cl><span class=s2>        random_key (random.PRNGKey): Random key for reproducible random numbers.
+</span></span></span><span class=line><span class=cl><span class=s2>        scale (float, optional): Scaling factor for weight initialization. Defaults to 1e-3.
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>        Tuple[jnp.ndarray, jnp.ndarray]: A tuple containing initialized weights and biases.
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>w_key</span><span class=p>,</span> <span class=n>b_key</span> <span class=o>=</span> <span class=n>random</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=n>random_key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>scale</span> <span class=o>*</span> <span class=n>random</span><span class=o>.</span><span class=n>normal</span><span class=p>(</span><span class=n>w_key</span><span class=p>,</span> <span class=p>(</span><span class=n>out_size</span><span class=p>,</span> <span class=n>in_size</span><span class=p>)),</span> <span class=n>scale</span> <span class=o>*</span> <span class=n>random</span><span class=o>.</span><span class=n>normal</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>b_key</span><span class=p>,</span> <span class=p>(</span><span class=n>out_size</span><span class=p>,)</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>random_layer_init</span><span class=p>(</span><span class=n>layer_sizes</span><span class=p>:</span> <span class=nb>list</span><span class=p>,</span> <span class=n>random_key</span><span class=p>:</span> <span class=n>random</span><span class=o>.</span><span class=n>PRNGKey</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>list</span><span class=p>[</span><span class=nb>tuple</span><span class=p>[</span><span class=n>jnp</span><span class=o>.</span><span class=n>ndarray</span><span class=p>,</span> <span class=n>jnp</span><span class=o>.</span><span class=n>ndarray</span><span class=p>]]:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Initialize weights and biases for all layers in a neural network.
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Args:
+</span></span></span><span class=line><span class=cl><span class=s2>        layer_sizes (List[int]): List of layer sizes, including input and output dimensions.
+</span></span></span><span class=line><span class=cl><span class=s2>        random_key (random.PRNGKey): Random key for reproducible random numbers.
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Returns:
+</span></span></span><span class=line><span class=cl><span class=s2>        List[Tuple[jnp.ndarray, jnp.ndarray]]: A list of tuples, each containing initialized weights and biases for a layer.
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>keys</span> <span class=o>=</span> <span class=n>random</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=n>random_key</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>layer_sizes</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=n>init_weights_biases</span><span class=p>(</span><span class=n>in_size</span><span class=p>,</span> <span class=n>out_size</span><span class=p>,</span> <span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>in_size</span><span class=p>,</span> <span class=n>out_size</span><span class=p>,</span> <span class=n>key</span> <span class=ow>in</span> <span class=nb>zip</span><span class=p>(</span><span class=n>layer_sizes</span><span class=p>[:</span><span class=o>-</span><span class=mi>1</span><span class=p>],</span> <span class=n>layer_sizes</span><span class=p>[</span><span class=mi>1</span><span class=p>:],</span> <span class=n>keys</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>]</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>relu</span><span class=p>(</span><span class=n>x</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34; &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>jnp</span><span class=o>.</span><span class=n>maximum</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>predict</span><span class=p>(</span><span class=n>params</span><span class=p>,</span> <span class=n>image</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34; &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># initialize the activations</span>
+</span></span><span class=line><span class=cl>    <span class=n>activations</span> <span class=o>=</span> <span class=n>image</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>w</span><span class=p>,</span> <span class=n>b</span> <span class=ow>in</span> <span class=n>params</span><span class=p>[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>        <span class=n>outputs</span> <span class=o>=</span> <span class=n>jnp</span><span class=o>.</span><span class=n>dot</span><span class=p>(</span><span class=n>w</span><span class=p>,</span> <span class=n>activations</span><span class=p>)</span> <span class=o>+</span> <span class=n>b</span>
+</span></span><span class=line><span class=cl>        <span class=n>activations</span> <span class=o>=</span> <span class=n>relu</span><span class=p>(</span><span class=n>outputs</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>final_w</span><span class=p>,</span> <span class=n>final_b</span> <span class=o>=</span> <span class=n>params</span><span class=p>[</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>logits</span> <span class=o>=</span> <span class=n>jnp</span><span class=o>.</span><span class=n>dot</span><span class=p>(</span><span class=n>final_w</span><span class=p>,</span> <span class=n>activations</span><span class=p>)</span> <span class=o>+</span> <span class=n>final_b</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>logits</span> <span class=o>-</span> <span class=n>logsumexp</span><span class=p>(</span><span class=n>logits</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>loss</span><span class=p>(</span><span class=n>params</span><span class=p>:</span> <span class=nb>list</span><span class=p>,</span> <span class=n>images</span><span class=p>:</span> <span class=n>jnp</span><span class=o>.</span><span class=n>array</span><span class=p>,</span> <span class=n>targets</span><span class=p>:</span> <span class=n>jnp</span><span class=o>.</span><span class=n>array</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>float</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>preds</span> <span class=o>=</span> <span class=n>batched_predict</span><span class=p>(</span><span class=n>params</span><span class=p>,</span> <span class=n>images</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>-</span><span class=n>jnp</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=n>preds</span> <span class=o>*</span> <span class=n>targets</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>key</span> <span class=o>=</span> <span class=n>random</span><span class=o>.</span><span class=n>PRNGKey</span><span class=p>(</span><span class=n>RANDOM_SEED</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>params</span> <span class=o>=</span> <span class=n>random_layer_init</span><span class=p>(</span><span class=n>LAYER_SIZES</span><span class=p>,</span> <span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>tree_map</span><span class=p>(</span><span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=n>x</span><span class=o>.</span><span class=n>shape</span><span class=p>,</span> <span class=n>params</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>batched_predict</span> <span class=o>=</span> <span class=n>vmap</span><span class=p>(</span><span class=n>predict</span><span class=p>,</span> <span class=n>in_axes</span><span class=o>=</span><span class=p>(</span><span class=kc>None</span><span class=p>,</span> <span class=mi>0</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>random_flattened_image</span> <span class=o>=</span> <span class=n>random</span><span class=o>.</span><span class=n>normal</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>random</span><span class=o>.</span><span class=n>PRNGKey</span><span class=p>(</span><span class=mi>1</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=mi>10</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=mi>28</span> <span class=o>*</span> <span class=mi>28</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>preds</span> <span class=o>=</span> <span class=n>batched_predict</span><span class=p>(</span><span class=n>params</span><span class=p>,</span> <span class=n>random_flattened_image</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>preds</span><span class=o>.</span><span class=n>shape</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div></section><footer class=article-footer><section class=article-tags><a href=/tags/implementation/>Implementation</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css integrity="sha256-J+iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s=" crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js integrity="sha256-InsNdER1b2xUewP+pKCUJpkhiqwHgqiPXDlIk7GzBu4=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI=" crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})})</script></article><div class="article-list--compact links"><article><a href=https://github.com target=_blank rel=noopener><div class=article-details><h2 class=article-title>GitHub</h2><footer class=article-time>GitHub is the world's largest software development platform.</footer></div><div class=article-image><img src=https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png loading=lazy></div></a></article></div><footer class=site-footer><section class=copyright>&copy;
+2023 Ryan's ML Gym</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.20.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
