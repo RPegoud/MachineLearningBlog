@@ -8,7 +8,7 @@ categories:
     - Statistics
 tags: 
     - Theory
-weight: 1       # You can add weight to some posts to override the default sorting (date descending)
+weight: 3      # You can add weight to some posts to override the default sorting (date descending)
 math: true
 ---
 
