@@ -14,7 +14,7 @@ math: true
 
 <center><img src="https://www.gymlibrary.dev/_images/frozen_lake.gif" height=400></center>
 
-In this article, we'll implement [[Dynamic Programming|Policy Iteration]] in Python to solve a simple problem from the gym library: Frozen Lake.
+In this article, we'll implement Policy Iteration in Python to solve a simple problem from the gym library: Frozen Lake.
 
 ## ***OpenAI Gym***
 
@@ -149,7 +149,7 @@ def policy_improvement(p, n_states, n_actions, value_from_policy, gamma):
 ## ***Policy iteration***
 
 Now that we know about policy evaluation and policy improvement, it's time to combine both algorithms in policy iteration.
-Policy iteration is repeated until the policy converges, as mentioned in the [[Dynamic Programming|theoretical article about dynamic programming]], ***alternating policy evaluation and policy iteration is guaranteed to improve the policy*** and value function at each step. Therefore, ***when the policy stops changing*** (or its values are ***updated by less than epsilon***), we know that we have obtained an ***optimal policy***.
+Policy iteration is repeated until the policy converges, as mentioned in the theoretical article about dynamic programming (*coming soon*), ***alternating policy evaluation and policy iteration is guaranteed to improve the policy*** and value function at each step. Therefore, ***when the policy stops changing*** (or its values are ***updated by less than epsilon***), we know that we have obtained an ***optimal policy***.
 
 ```python
 def policy_iteration(p, n_states, n_actions, gamma, epsilon, max_iter=100):
