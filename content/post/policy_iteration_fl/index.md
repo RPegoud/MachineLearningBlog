@@ -10,11 +10,16 @@ tags:
     - Implementation
 weight: 3       # You can add weight to some posts to override the default sorting (date descending)
 math: true
+links:
+  - title: Policy iteration on Frozen Lake
+    description: The full Python script for this article
+    website: https://github.com/RPegoud/Reinforcement-Learning/blob/main/scripts/policy_iteration_frozen_lake.py
+    image: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
 ---
 
 <center><img src="https://www.gymlibrary.dev/_images/frozen_lake.gif" height=400></center>
 
-In this article, we'll implement Policy Iteration in Python to solve a simple problem from the gym library: Frozen Lake.
+In this article, we'll implement Policy Iteration in Python to solve a simple problem from the gym library: Frozen Lake. The code presented in this article is available <a href="https://github.com/RPegoud/Reinforcement-Learning/blob/main/scripts/policy_iteration_frozen_lake.py">here<a/>.
 
 ## ***OpenAI Gym***
 
