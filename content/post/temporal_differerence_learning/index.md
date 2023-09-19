@@ -17,6 +17,8 @@ links:
     image: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
 ---
 
+*Disclaimer: most of the theoretical parts of this article are based on Reinforcement Learning: an Introduction by Sutton and Barto. It is higly recommended to read or have read up to chapter 8 to better grasp the concepts introduced here.*
+
 *The full code for this experiment is available in the following [GitHub repo](https://github.com/RPegoud/Temporal-Difference-learning/tree/main)*
 
 In this article, we'll compare different kinds of **TD algorithms** in a custom Grid World.
@@ -72,9 +74,22 @@ In conclusion, TD methods present several advantages:
 * They are implemented in an online fashion, updating the target after each time step
 * TD(0) is guaranteed to converge for any fixed policy $\pi$ if $\alpha$ follows stochastic approximation conditions (for more detail see page 55 *"Tracking a Nonstationary Problem"* of [RL:An Introduction](http://incompleteideas.net/book/RLbook2020.pdf))
 
+> ## ***Implementation details:***
+>
+> The following sections explore the main characteristics and performances of several TD algorithms on the grid world.
+> The **same parameters** were used **for all models**, for the sake of simplicity:
+>
+> * **Epsilon = 0.1**: probability of selecting a random action in $\epsilon$-greedy policies
+> * **Gamma = 0.9**: discount factor applied to future rewards or value estimates
+> * **Step size = 0.25**: learning rate restricting the Q value updates
+> * **Planning steps = 100**: for Dyna-Q and Dyna-Q+, the number of planning steps executed for each direct interaction
+> * **Kappa = $1^{-3}$**: for Dyna-Q+, the weight of bonus rewards applied during planning steps
+>
+> The performances of each algorithm is first presented for a single run of 400 episodes (sections: Q-learning, Dyna-Q and Dyna-Q+) and then averaged over 100 runs of 250 episodes in the "summary and algorithms comparison" section.
+
 ## ***Q-learning:***
 
-The first algorithm we implement here is the famous Q-learning algoirthm (*Watkins, 1989*):
+The first algorithm we implement here is the famous Q-learning (*Watkins, 1989*):
 
 $$
 Q(S_t, A_t) ← Q(S_t, A_t) + \alpha[R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t)]
@@ -193,16 +208,48 @@ In contrast, Dyna-Q+ regularly achieves optimal performance (depicted by green b
 
 ## ***Summary and algorithms comparison***
 
+In order to compare the key differences between the algorithms, we use two metrics (keep in mind that the results depend on the input parameters, that were identical among all models for simplicity):
+
+* The **number of steps per episode**: this metric characterizes the rate of convergence of the algorithms towards an optimal solution. It also describes the behaviour of the algorithm after convergence, particularly in terms of exploration.
+* **Average cumulative reward**: the percentage of episodes leading to a positive reward
+
+Analyzing the number of steps per episode (see plot below), reveals several aspects of model-based and model-free methods:
+
+* **Model-Based Efficiency**: Model-based algorithms (Dyna-Q and Dyna-Q+) tend to be more **sample-efficient** in this particular Grid World (this property is also observed more generally in RL). This is because they can plan ahead using the learned model of the environment, which can lead to quicker convergence to near-optimal or optimal solutions.
+
+* **Q-Learning Convergence**: Q-learning, while eventually converging to a near-optimal solution, requires more episodes (125) to do so. It's important to highlight that Q-learning performs only **1 update per step**, which contrasts with the multiple updates performed by Dyna-Q and Dyna-Q+.
+
+* **Multiple Updates**: Dyna-Q and Dyna-Q+ execute **101 updates per step**, which contributes to their faster convergence. However the tradeoff for this sample-efficiency is computational cost (see the runtime section in the table below).
+
+* **Complex Environments**: In more complex or stochastic environments, the advantage of model-based methods might diminish. Models can introduce errors or inaccuracies, which can lead to suboptimal policies. Therefore, this comparison should be seen as an outline of the strengths and weaknesses of different approaches rather than a direct performance comparison.
+
 ![Comparison of the number of steps per episode, averaged over 100 runs](average_steps.png)
 
-![Comparison of the reward per episode, averaged over 100 runs](average_reward.png)
+We now introduce the average cumulative reward, which represents the percentage of episodes where the agent reaches the goal (as the reward is 1 for reaching the goal and 0 for triggering a trap), the ACR is then simply by:
+$$ACR = {1 \over{N*K}} \sum_{k=0}^K \sum_{n=0}^N{R_{n,k}}$$
+With $N$ the number of episodes (250) and K the number of independent runs (100) and $R_{n,k}$ the cumulative reward for episode $n$ in run $k$.
 
-| Algorithm  | Type        | Runtime (400 episodes, single CPU) | Discovered second optimal strategy | Average reward from episodes 100 to 250 |
-|:---------- | ----------- |:---------------------------------- | ---------------------------------- |:--------------------------------------- |
-| Q-learning | Model-free  | 4.4 sec                            | No                                 | 0.97                                    |
-| Dyna-Q     | Model-based | 31.7 sec                           | No                                 | 0.95                                    |
-| Dyna-Q+    | Model-based | 39.5 sec                           | Yes                                | 0.85                                    |
+Here's a breakdown of the performance of all algorithms:
 
-## References
+* **Dyna-Q** converges rapidly and achieves the highest overall return, with an ACR of **87%**. This means that it efficiently learns and reaches the goal in a significant portion of episodes.
 
-* Reinforcement Learning: An Introduction (2018), *Richard S. Sutton and Andrew G. Barto* MIT Press, Cambridge, MA
+* **Q-learning** also reaches a similar level of performance but requires more episodes to converge, explaining its slightly lower ACR, at **70%**.
+
+* **Dyna-Q**+ promptly finds a good policy, reaching a cumulative reward of 0.8 after only 15 episodes, however the variability and exploration induced by the bonus reward reduces performance until step 100. After 100 steps, it starts to improve as it **discovers the new optimal path**. However, the short-term exploration compromises its performance, resulting in an ACR of **79%**, which is lower than Dyna-Q but higher than Q-learning.
+
+![Comparison of the cumulative reward per episode, averaged over 100 runs](average_reward.png)
+
+## ***Conclusion***
+
+In this article, we presented the fundamental principles of Temporal Difference learning and applied Q-learning, Dyna-Q and Dyna-Q+ to a custom grid world. The design of this grid world helps emphasize the importance of continual exploration as a way to discover and exploit new optimal policies in changing environments. The difference in performances (evaluated using the number of steps per episode and the cumulative reward) illustrate the strengths and weaknesses of these algorithms.
+In summary, model-based methods (Dyna-Q, Dyna-Q+) benefit from increased sample efficiency compared to model-based methods (Q-learning), at the cost of computation efficiency. However, in stochastic or more complex environments, innacuracies in the model could hinder performances and lead to sub-optimal policies.
+
+| Algorithm  | Type        | Updates per step     | Runtime (400 episodes, single CPU) | Discovered optimal strategy (purple portal) | Average cumulative reward |
+|:---------- | ----------- | -------------------- |:---------------------------------- | ------------------------------------------- |:------------------------- |
+| Q-learning | Model-free  | 1                    | 4.4 sec                            | No                                          | 0.70                      |
+| Dyna-Q     | Model-based | 101                  | 31.7 sec                           | No                                          | 0.87                      |
+| Dyna-Q+    | Model-based | 101                  | 39.5 sec                           | Yes                                         | 0.79                      |
+
+## ***References***
+
+* ***Reinforcement Learning: An Introduction*** (2018), Richard S. Sutton and Andrew G. Barto, MIT Press, Cambridge, MA
