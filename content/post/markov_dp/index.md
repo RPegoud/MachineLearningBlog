@@ -1,6 +1,6 @@
 ---
 title: "Markov Decision Processes"
-description: Welcome to Hugo Theme Stack
+description: Framing Reinforcement Learning problems efficiently
 slug: markov_decision_processes
 date: 2023-04-03 00:00:00+0000
 image: cover.jpg

@@ -1,6 +1,6 @@
 ---
 title: "The Bellman equation"
-description: The fundamental equation of RL
+description: The fundamental equation of Reinforcement Learning
 slug: bellman_equation
 date: 2023-04-29 00:00:00+0000
 image: cover.jpg
@@ -38,7 +38,7 @@ $$v_\pi(s) = E_\pi[G_t|S_t=s]$$
 As you can see, the state value function is the expected return given that we are in state $s$ and follow the policy $\pi$. We can use the definition of the return to obtain the following form:
 $$v_\pi(s) = E_\pi[\sum_{k=0}^\infty \gamma^kR_{t+k+1}|S_t=s]$$
 
-### ***ction value function:***
+### ***Action value function:***
 
 On the other hand, the action value function answers :
 
@@ -155,4 +155,4 @@ $$\pi_\star(s) = \text{arg}\max_a \text{ }q_\star(s,a)$$
 
 In conclusion, the Bellman equation is a fundamental concept in the field of Reinforcement Learning, enabling us to ***compute the optimal value function of an agent in a Markov Decision Process***. Through the use of the Bellman equation, we can efficiently solve complex decision-making problems by breaking them down into smaller sub-problems.
 
-In the next article, we will dive deeper into the world of  <a href="../">Dynamic Programming<a/> algorithms, a class of algorithms that utilizes the Bellman equation to solve problems in a systematic and efficient manner. We will explore various dynamic programming algorithms such as Value Iteration and Policy Iteration, and see how they can be used to solve larger and more complex decision-making problems.
+In the next article, we will dive deeper into the world of < href="../policy_iteration_fl/">Dynamic Programming algorithms<a/>, a class of algorithms that utilizes the Bellman equation to solve problems in a systematic and efficient manner. We will explore various dynamic programming algorithms such as Value Iteration and Policy Iteration, and see how they can be used to solve larger and more complex decision-making problems.

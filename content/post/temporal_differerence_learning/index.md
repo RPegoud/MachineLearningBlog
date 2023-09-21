@@ -252,4 +252,4 @@ In summary, model-based methods (Dyna-Q, Dyna-Q+) benefit from increased sample 
 
 ## ***References***
 
-* ***Reinforcement Learning: An Introduction*** (2018), Richard S. Sutton and Andrew G. Barto, MIT Press, Cambridge, MA
+* Richard S. Sutton and Andrew G. Barto, ***Reinforcement Learning: An Introduction*** (2018), MIT Press, Cambridge, MA
