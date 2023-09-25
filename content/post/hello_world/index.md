@@ -14,6 +14,8 @@ links:
     image: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
 ---
 
+> If you enjoy my posts, feel free to upvote them on [Medium](https://medium.com/@ryanpegoud), it helps me out a lot ! Thank you for your support and nice read ;)
+
 ## Welcome to my blog
 
 Here I regularly share my learning and projects. I'm interested in a wide range of topics spanning several branches of **Machine Learning** and **Statistics**.
