@@ -6,6 +6,7 @@ date: 2023-04-03 00:00:00+0000
 image: cover.jpg
 categories:
     - Reinforcement Learning
+    - Start here !
 tags: 
     - Theory
 weight: 1       # You can add weight to some posts to override the default sorting (date descending)

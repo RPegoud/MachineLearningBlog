@@ -6,6 +6,7 @@ date: 2023-05-06 00:00:00+0000
 image: cover.jpg
 categories:
     - Reinforcement Learning
+    - Intermediate
 tags: 
     - Implementation
 weight: 3       # You can add weight to some posts to override the default sorting (date descending)

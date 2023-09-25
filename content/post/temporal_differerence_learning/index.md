@@ -1,47 +1,59 @@
 ---
-title: Comparing Temporal-Difference Learning algorithms
-description: Q-Learning, Dyna-Q and Dyna-Q+ !
+title: Temporal-Difference Learning and the importance of exploration, an illustrated guide
+description: Comparing model-free and model-based RL methods on a dynamic grid world
 slug: td_learning_comparison
 date: 2023-06-18 00:00:00+0000
-image: cover.jpg
+image: cover2.jpg
 categories:
     - Reinforcement Learning
+    - Advanced
 tags:
     - Implementation
-weight: 1       # You can add weight to some posts to override the default sorting (date descending)
+weight: 2       # You can add weight to some posts to override the default sorting (date descending)
 math: true
 links:
   - title: Comparing Temporal Difference Learning Algorithms
     description: The full Python project for this article
     website: https://github.com/RPegoud/Temporal-Difference-learning
     image: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+  
+  - title: This article was featured on Towards Data Science !
+    description: The full Python project for this article
+    website: https://medium.com/towards-data-science/temporal-difference-learning-and-the-importance-of-exploration-an-illustrated-guide-5f9c3371413a
+    image: https://cdn4.iconfinder.com/data/icons/social-media-circle-7/512/Medium_circle-1024.png
 ---
 
-*Disclaimer: most of the theoretical parts of this article are based on Reinforcement Learning: an Introduction by Sutton and Barto. It is higly recommended to read or have read up to chapter 8 to better grasp the concepts introduced here.*
+Recently, **Reinforcement Learning (RL)** algorithms have received a lot of traction by solving research problems such as **protein folding**, reaching a superhuman level in **drone racing**, or even integrating **human feedback** in your favorite chatbots.
 
-*The full code for this experiment is available in the following [GitHub repo](https://github.com/RPegoud/Temporal-Difference-learning/tree/main)*
+Indeed, RL provides useful solutions to a variety of sequential decision-making problems. **Temporal-Difference Learning** (TD learning) methods are a popular subset of RL algorithms. TD learning methods **combine** key aspects of **Monte Carlo** and **Dynamic Programming** methods to accelerate learning without requiring a perfect model of the environment dynamics.
 
-In this article, we'll compare different kinds of **TD algorithms** in a custom Grid World.
-The design of the experiment will outline the importance of **exploration** as well as the individual characteristics of the tested algorithms: **Q-learning**, **Dyna-Q** and **Dyna-Q**+.
+In this article, we’ll compare different kinds of **TD algorithms** in a custom Grid World. The design of the experiment will outline the importance of **continuous exploration** as well as the **individual characteristics** of the tested algorithms: **Q-learning**, **Dyna-Q**, and **Dyna-Q+**.
 
-## ***The environment***
+The outline of this post contains:
 
-![](Environment.jpg)
+* Description of the environment
+* Temporal-Difference (TD) Learning
+* Model-free TD methods (Q-learning) and model-based TD methods (Dyna-Q and Dyna-Q+)
+* Parameters
+* Performance comparisons
+* Conclusion
+
+> *The full code for this experiment is available on [GitHub](https://github.com/RPegoud/Temporal-Difference-learning/tree/main)*.
+
+## ***The Environment***
 
 The environment we'll use in this experiment is a grid world with the following features:
 
-* The grid is **12 by 8** cells, meaning there are **96 states** in total.
-* The **agent** starts in the **bottom left** corner of the grid.
-* The **objective** is to reach the **treasure** located in the **top right** corner.
-* There are different kind of portals:
-  * The **blue portals** are **connected**, going through the portal located on the cell **(10, 6)** leads to the cell  **(11, 0)**. The agent cannot take the portal again after its first transition.
-  * The **purple portal** only appears **after 100 episodes** but allows to reach the treasure faster.
-  * The **red portal** are **traps** (terminal states) and end the episode.
-  * The agent starts the episode surrounded by walls, bumping into one of them will result in the agent **remaining in the same state**.
+* The grid is 12 by 8 cells.
+* The **agent** starts in the bottom left corner of the grid, the **objective** is to reach the treasure located in the top right corner (a terminal state with reward 1).
+* The **blue portals** are **connected**, going through the portal located on the cell **(10, 6)** **leads to** the cell **(11, 0)**. The agent cannot take the portal again after its first transition.
+* The **purple portal** only appears after **100 episodes** but enables the agent to reach the treasure faster. This encourages continually exploring the environment.
+* The **red portals** are **traps** (terminal states with reward 0) and end the episode.
+Bumping into a wall causes the agent to remain in the same state.
 
 ![Interactions in the Grid World environment](Movements.jpg)
 
-The aim of this experiment is to compare the behavior of the **Q-learning**, **Dyna-Q** and **Dyna-Q+** agents in a changing environment. Indeed, after 100 episodes, the optimal policy is bound to change and the **optimal number of steps** during a successful episode will decrease **from 17 to 12**.
+This experiment aims to compare the behavior of Q-learning, Dyna-Q, and Dyna-Q+ agents in a **changing environment**. Indeed, after **100 episodes**, the **optimal policy** is bound to change and the optimal number of steps during a successful episode will **decrease** from **17** to **12**.
 
 ![Illustration of the Grid World, the lines represent optimal paths depending on the episode](GridWorld.jpg)
 
@@ -49,13 +61,14 @@ In order to determine the optimal path towards the treasure, we're going to use 
 
 ## ***Introduction to Temporal-Difference Learning***
 
-Temporal-Difference Learning (TD learning) is a combination of Monte Carlo (MC) methods and dynamic programming (DP):
+Temporal-Difference Learning is a combination of **Monte Carlo** (MC) and **Dynamic Programming** (DP) methods:
 
-* As MC methods, TD methods can **learn from experience** without requiring a **model of the environment's dynamics**.
-* Like DP methods, TD methods update **estimates** partly based on **other learned estimates** without waiting for the **final outcome** (this is called *bootstrapping*).
+* Like MC methods, TD methods can learn from experience **without requiring** a model of the **environment’s dynamics**.
+* Like DP methods, TD methods **update estimates** after every step **based on other learned estimates** without waiting for the outcome (this is called *bootstrapping*).
 
 One particularity of TD methods is that they update their value estimate **every time step**, as opposed to MC methods that wait until the end of an episode.
-This is due to the different update targets of both methods, where MC methods aim to update the return $G_t$ (only available at the end of an episode), TD methods target $R_{t+1} + \gamma V(S_{t+1})$, where $V$ is an **estimate of the true value function** $v_\pi$.
+
+Indeed, both methods have different update targets. MC methods aim to update the return $G_t$, which is only available at the end of an episode. Instead, TD methods target $R_{t+1} + \gamma V(S_{t+1})$, where $V$ is an **estimate of the true value function** $v_\pi$.
 
 Therefore, TD methods **combine** the ***sampling*** of MC (by using an estimate $V$ instead of $v_\pi$) and the ***bootstrapping*** of DP (by updating $V$ based on estimates relying on further estimates).
 
@@ -63,14 +76,14 @@ The simplest version of temporal-difference learning is called ***TD(0)*** or *o
 
 ![Pseudo code for the TD(0) algorithm](TD(0).png)
 
-Put simply, when transitioning from a state $S$ to a new state $S'$, the TD(0) algorithm will compute a backed-up value and update $V(S)$ accordingly. This backed-up value is called ***TD error***, the difference between original estimate of $V(S)$ and a better estimate $R_{t+1} + \gamma V(S_{t+1})$:
+When transitioning from a state $S$ to a new state $S'$, the TD(0) algorithm will compute a backed-up value and update $V(S)$ accordingly. This backed-up value is called ***TD error***, the difference between original estimate of $V(S)$ and a better estimate $R_{t+1} + \gamma V(S_{t+1})$:
 $$
-\gamma_t \doteq R_{t+1} + \gamma V(S_{t+1}) - V(S_t)
+\delta_t \doteq R_{t+1} + \gamma V(S_{t+1}) - V(S_t)
 $$
 
 In conclusion, TD methods present several advantages:
 
-* They do not require a perfect model of the enironment dynamics $p$
+* They do not require a perfect model of the environment dynamics $p$
 * They are implemented in an online fashion, updating the target after each time step
 * TD(0) is guaranteed to converge for any fixed policy $\pi$ if $\alpha$ follows stochastic approximation conditions (for more detail see page 55 *"Tracking a Nonstationary Problem"* of [RL:An Introduction](http://incompleteideas.net/book/RLbook2020.pdf))
 
@@ -106,12 +119,12 @@ Compared to the previous TD learning pseudo code, there are three main differenc
 
 Now that we have our first algorithm reading for testing, we can start the training phase. Our agent will navigate the Grid World using its $\epsilon$-greedy policy, which is **derived from the Q values**. This policy, selects the action with the **highest Q-value** with a probability of (1 - $\epsilon$) and chooses a **random action** with a probability of $\epsilon$. After each action, the agent will update its Q-value estimates.
 
-We can visualize the evolution of estimated maximum action-value $Q(S,a)$ of each cell of the Grid World using a heatmap.
+We can visualize the evolution of estimated **maximum action-value** $Q(S,a)$ of each cell of the Grid World using a heatmap.
 Here the agent plays 400 episodes. As there is only one update per episode, the evolution of the Q values is quite slow and a large part of the states remain unmapped:
 
 ![Heatmap representation of the learned Q values of each state, during training](Q_learning_gif.gif)
 
-Upon completion of the 400 episodes, an analysis of the total visits to each cell provides us with a decent estimate of the agent's average route. As depicted on the right-hand plot below, the agent seems to have converged to a sub-optimal route, avoiding cell (4,4) and consistently following the lower wall.
+Upon completion of the 400 episodes, an analysis of the total visits to each cell provides us with a decent estimate of the agent's average route. As depicted on the right-hand plot below, the agent seems to have converged to a **sub-optimal route, avoiding cell (4,4)** and consistently **following the lower wall**.
 
 ![(left) Estimation of the maximal action value for each state, (right) Number of visits per state](Q_learning_heatmaps.png)
 
@@ -180,7 +193,7 @@ Finally, while Dyna-Q may appear more convincing than Q-learning due to its inco
 
 Up to now, **neither** of the tested algorithms managed to find the **optimal path appearing after step 100** (the purple portal). Indeed, both algorithms rapidly converged to an optimal solution that remained fixed until the end of the training phase. This highlights the **need** for **continuous exploration throughout training**.
 
-Dyna-Q+ is largely similar to Dyna-Q but adds a small twist to the algorithm. Indeed, Dyna-Q+ **cosntantly tracks** the **number of time steps elapsed** since **each state-action pair was tried** in **real** interaction with the environment.
+Dyna-Q+ is largely similar to Dyna-Q but adds a small twist to the algorithm. Indeed, Dyna-Q+ **constantly tracks** the **number of time steps elapsed** since **each state-action pair was tried** in **real** interaction with the environment.
 In particular, consider a transition yielding a reward $r$ that has not been tried in $\tau$ time steps. Dyna-Q+ would perform planning as if the reward for this transition was $r + \kappa \sqrt{\tau}$, with $\kappa$ sufficiently small ($10^{-3}$ in the experiment).
 
 This change in reward design encourages the agent to **continually explore the environment**. It assumes that the longer a state-action pair hasn't been tried, the greater the chances that the dynamics of this pair have **changed** or that the **model of it is incorrect**.
@@ -210,14 +223,14 @@ In contrast, Dyna-Q+ regularly achieves optimal performance (depicted by green b
 
 In order to compare the key differences between the algorithms, we use two metrics (keep in mind that the results depend on the input parameters, that were identical among all models for simplicity):
 
-* The **number of steps per episode**: this metric characterizes the rate of convergence of the algorithms towards an optimal solution. It also describes the behaviour of the algorithm after convergence, particularly in terms of exploration.
+* The **number of steps per episode**: this metric characterizes the rate of convergence of the algorithms towards an optimal solution. It also describes the behavior of the algorithm after convergence, particularly in terms of exploration.
 * **Average cumulative reward**: the percentage of episodes leading to a positive reward
 
 Analyzing the number of steps per episode (see plot below), reveals several aspects of model-based and model-free methods:
 
-* **Model-Based Efficiency**: Model-based algorithms (Dyna-Q and Dyna-Q+) tend to be more **sample-efficient** in this particular Grid World (this property is also observed more generally in RL). This is because they can plan ahead using the learned model of the environment, which can lead to quicker convergence to near-optimal or optimal solutions.
+* **Model-Based Efficiency**: Model-based algorithms (Dyna-Q and Dyna-Q+) tend to be more **sample-efficient** in this particular Grid World (this property is also observed more generally in RL). This is because they can plan ahead using the learned model of the environment, which can lead to quicker convergence to near optimal or optimal solutions.
 
-* **Q-Learning Convergence**: Q-learning, while eventually converging to a near-optimal solution, requires more episodes (125) to do so. It's important to highlight that Q-learning performs only **1 update per step**, which contrasts with the multiple updates performed by Dyna-Q and Dyna-Q+.
+* **Q-Learning Convergence**: Q-learning, while eventually converging to a near optimal solution, requires more episodes (125) to do so. It's important to highlight that Q-learning performs only **1 update per step**, which contrasts with the multiple updates performed by Dyna-Q and Dyna-Q+.
 
 * **Multiple Updates**: Dyna-Q and Dyna-Q+ execute **101 updates per step**, which contributes to their faster convergence. However the tradeoff for this sample-efficiency is computational cost (see the runtime section in the table below).
 
@@ -241,8 +254,9 @@ Here's a breakdown of the performance of all algorithms:
 
 ## ***Conclusion***
 
-In this article, we presented the fundamental principles of Temporal Difference learning and applied Q-learning, Dyna-Q and Dyna-Q+ to a custom grid world. The design of this grid world helps emphasize the importance of continual exploration as a way to discover and exploit new optimal policies in changing environments. The difference in performances (evaluated using the number of steps per episode and the cumulative reward) illustrate the strengths and weaknesses of these algorithms.
-In summary, model-based methods (Dyna-Q, Dyna-Q+) benefit from increased sample efficiency compared to model-based methods (Q-learning), at the cost of computation efficiency. However, in stochastic or more complex environments, innacuracies in the model could hinder performances and lead to sub-optimal policies.
+In this article, we presented the fundamental principles of Temporal Difference learning and applied Q-learning, Dyna-Q, and Dyna-Q+ to a custom grid world. The design of this grid world helps emphasize the importance of continual exploration as a way to discover and exploit new optimal policies in changing environments. The difference in performances (evaluated using the number of steps per episode and the cumulative reward) illustrate the strengths and weaknesses of these algorithms.
+
+In summary, model-based methods (Dyna-Q, Dyna-Q+) benefit from increased sample efficiency compared to model-based methods (Q-learning), at the cost of computation efficiency. However, in stochastic or more complex environments, inaccuracies in the model could hinder performances and lead to sub-optimal policies.
 
 | Algorithm  | Type        | Updates per step     | Runtime (400 episodes, single CPU) | Discovered optimal strategy (purple portal) | Average cumulative reward |
 |:---------- | ----------- | -------------------- |:---------------------------------- | ------------------------------------------- |:------------------------- |
@@ -252,4 +266,12 @@ In summary, model-based methods (Dyna-Q, Dyna-Q+) benefit from increased sample 
 
 ## ***References***
 
-* Richard S. Sutton and Andrew G. Barto, ***Reinforcement Learning: An Introduction*** (2018), MIT Press, Cambridge, MA
+[1] Demis Hassabis, [AlphaFold reveals the structure of the protein universe](https://www.deepmind.com/blog/alphafold-reveals-the-structure-of-the-protein-universe) (2022), DeepMind
+
+[2] Elia Kaufmann, Leonard Bauersfeld, Antonio Loquercio, Matthias Müller, Vladlen Koltun &Davide Scaramuzza, [Champion-level drone racing using deep reinforcement learning](https://www.nature.com/articles/s41586-023-06419-4) (2023), Nature
+
+[3] Nathan Lambert, LouisCastricato, Leandro von Werra, Alex Havrilla, Illustrating [Reinforcement Learning from Human Feedback (RLHF)](https://huggingface.co/blog/rlhf), HuggingFace
+
+[4] Sutton, R. S., & Barto, A. G. . [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book-2nd.html) (2018), Cambridge (Mass.): The MIT Press.
+
+[5] Christopher J. C. H. Watkins & Peter Dayan, [Q-learning](https://link.springer.com/article/10.1007/BF00992698) (1992), Machine Learning, Springer Link

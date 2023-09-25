@@ -6,9 +6,10 @@ date: 2023-04-29 00:00:00+0000
 image: cover.jpg
 categories:
     - Reinforcement Learning
+    - Intermediate
 tags: 
     - Theory
-weight: 2       # You can add weight to some posts to override the default sorting (date descending)
+weight: 3       # You can add weight to some posts to override the default sorting (date descending)
 math: true
 ---
 
