@@ -23,6 +23,8 @@ links:
     image: https://cdn4.iconfinder.com/data/icons/social-media-circle-7/512/Medium_circle-1024.png
 ---
 
+> 🥳 ***This article got published on Towards Data Science  !*** If you enjoy it, feel free to follow me on Medium and upvote the article [here](https://medium.com/towards-data-science/temporal-difference-learning-and-the-importance-of-exploration-an-illustrated-guide-5f9c3371413a), thank you and nice read ! 🥳
+
 Recently, **Reinforcement Learning (RL)** algorithms have received a lot of traction by solving research problems such as **protein folding**, reaching a superhuman level in **drone racing**, or even integrating **human feedback** in your favorite chatbots.
 
 Indeed, RL provides useful solutions to a variety of sequential decision-making problems. **Temporal-Difference Learning** (TD learning) methods are a popular subset of RL algorithms. TD learning methods **combine** key aspects of **Monte Carlo** and **Dynamic Programming** methods to accelerate learning without requiring a perfect model of the environment dynamics.

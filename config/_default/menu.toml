@@ -22,3 +22,11 @@ url = "https://www.linkedin.com/in/ryan-pégoud/"
 
 [social.params]
 icon = "linkedin"
+
+[[social]]
+identifier = "Medium"
+name = "Medium"
+url = "https://medium.com/@ryanpegoud"
+
+[social.params]
+icon = "medium"
