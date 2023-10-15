@@ -13,7 +13,7 @@ tags:
 weight: 2       # You can add weight to some posts to override the default sorting (date descending)
 math: true
 links:
-  - title: Comparing Temporal Difference Learning Algorithms
+  - title: Vectorize and Parallelize RL Environments with JAX ⚡
     description: The full Python project for this article
     website: https://github.com/RPegoud/jax_rl
     image: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
