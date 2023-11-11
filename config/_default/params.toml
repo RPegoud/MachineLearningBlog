@@ -19,7 +19,7 @@ subtitle = "“No problem can withstand the assault of sustained thinking.” �
 [sidebar.avatar]
 enabled = true
 local = true
-src = "img/avatar.png"
+src = "img/avatar_2.png"
 
 [article]
 math = false
